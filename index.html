@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 👇 ДОБАВЬТЕ ЭТУ СТРОЧКУ СЮДА 👇 -->
+    <meta name="referrer" content="no-referrer">
+    
+    <title>КиноКаталог</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto 2rem auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            background-clip: text;
+-webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Панель фильтрации и поиска */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        input, select {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: #38bdf8;
+        }
+
+        input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        /* Сетка фильмов */
+        .movies-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Карточка фильма */
+        .movie-card {
+            background-color: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .poster-container {
+            width: 100%;
+            height: 340px;
+            background-color: #0f172a;
+            position: relative;
+        }
+
+        .poster-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .rating-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(15, 23, 42, 0.85);
+            color: #fbbf24;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .movie-info {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: 0.5rem;
+        }
+
+        .movie-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .movie-meta {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .movie-desc {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-top: 0.5rem;
+            line-height: 1.4;
+            line-clamp: 3;
+-webkit-line-clamp: 3;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            padding: 3rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎬 КиноКаталог</h1>
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="Поиск фильма по названию...">
+            <select id="genreSelect">
+                <option value="">Все жанры</option>
+                <option value="Фантастика">Фантастика</option>
+                <option value="Драма">Драма</option>
+                <option value="Боевик">Боевик</option>
+                <option value="Криминал">Криминал</option>
+                <option value="Фэнтези">Фэнтези</option>
+            </select>
+        </div>
+    </header>
+
+    <main class="movies-grid" id="moviesContainer">
+        <!-- Карточки фильмов подгрузятся сюда -->
+    </main>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000/api/movies';
+        const DEFAULT_POSTER = 'https://via.placeholder.com/300x450/1e293b/94a3b8?text=Нет+постера';
+
+        const searchInput = document.getElementById('searchInput');
+        const genreSelect = document.getElementById('genreSelect');
+        const moviesContainer = document.getElementById('moviesContainer');
+
+        // Функция получения фильмов из API
+        async function fetchMovies() {
+            const search = searchInput.value.trim();
+            const genre = genreSelect.value;
+
+            // Формируем параметры запроса
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (genre) params.append('genre', genre);
+
+            try {
+                const response = await fetch(`${API_URL}?${params.toString()}`);
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const movies = await response.json();
+                renderMovies(movies);
+            } catch (error) {
+                console.error('Ошибка при загрузке фильмов:', error);
+                moviesContainer.innerHTML = `<div class="empty-state">Не удалось загрузить фильмы. Убедитесь, что бэкенд запущен!</div>`;
+            }
+        }
+
+        // Отрисовка карточек
+        function renderMovies(movies) {
+            if (movies.length === 0) {
+                moviesContainer.innerHTML = `<div class="empty-state">Фильмы не найдены</div>`;
+                return;
+            }
+
+            moviesContainer.innerHTML = movies.map(movie => `
+                <div class="movie-card">
+                    <div class="poster-container">
+                        <img 
+                            src="${movie.poster_url ? movie.poster_url : DEFAULT_POSTER}" 
+                            alt="${movie.title}" 
+                            class="poster-img"
+                            onerror="this.src='${DEFAULT_POSTER}'"
+                        >
+                        <div class="rating-badge">★ ${movie.rating}</div>
+                    </div>
+                    <div class="movie-info">
+                        <h2 class="movie-title">${movie.title}</h2>
+                        <div class="movie-meta">
+                            <span>${movie.genre}</span>
+                            <span>${movie.year} г.</span>
+                        </div>
+                        <p class="movie-desc">${movie.description || 'Описание отсутствует.'}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Слушатели событий на поиск и фильтр
+        let timeout = null;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(fetchMovies, 300); // Задержка 300мс (debounce)
+        });
+
+        genreSelect.addEventListener('change', fetchMovies);
+
+        // Первоначальная загрузка
+        fetchMovies();
+    </script>
+</body>
+</html>
