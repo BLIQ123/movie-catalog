@@ -3,343 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>КиноКаталог — HYPER-CYBERPUNK</title>
+    <title>КиноКаталог</title>
     
-    <!-- Новые шрифты: Unbounded (акценты/кнопки) и Inter (текст/инпуты) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-deep: #020307;
-            --glass-bg: rgba(10, 15, 28, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --neon-red: #ff0055;
-            --neon-orange: #ff5500;
-            --neon-cyan: #00f0ff;
-            --neon-purple: #9d00ff;
-            --neon-green: #00ff88;
+            --bg-main: #0b0f17;
+            --bg-card: #151c28;
+            --bg-card-hover: #1e2738;
+            --bg-header: rgba(11, 15, 23, 0.85);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
             --text-main: #f8fafc;
-            --text-dim: #94a3b8;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(59, 130, 246, 0.5);
+            --accent-gold: #f59e0b;
+            --radius-lg: 16px;
+            --radius-md: 10px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-deep); }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple)); border-radius: 4px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-deep);
+            background-color: var(--bg-main);
             color: var(--text-main);
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            padding-bottom: 3rem;
         }
 
-        /* Лазерный курсор */
-        #customCursor {
-            position: fixed; width: 12px; height: 12px; border-radius: 50%;
-            background: var(--neon-cyan); pointer-events: none; z-index: 9999;
-            transform: translate(-50%, -50%); transition: transform 0.08s ease-out, background 0.3s;
-            box-shadow: 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan);
-        }
-        #cursorFollower {
-            position: fixed; width: 38px; height: 38px; border-radius: 50%;
-            border: 1px solid rgba(0, 240, 255, 0.5); pointer-events: none; z-index: 9998;
-            transform: translate(-50%, -50%); transition: transform 0.18s ease-out, width 0.2s, height 0.2s;
-        }
-
-        /* Эффект голографической сетки */
-        .scanline-overlay {
-            position: fixed; inset: 0; pointer-events: none; z-index: 2;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 6px 100%; opacity: 0.5;
-        }
-
-        #hyperCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-
-        .orb { position: fixed; border-radius: 50%; filter: blur(170px); pointer-events: none; z-index: 0; opacity: 0.28; }
-        .orb-1 { top: -15%; left: -10%; width: 50vw; height: 50vw; background: var(--neon-red); }
-        .orb-2 { bottom: -15%; right: -10%; width: 55vw; height: 55vw; background: var(--neon-purple); }
-        .orb-3 { top: 35%; left: 35%; width: 35vw; height: 35vw; background: var(--neon-cyan); opacity: 0.15; }
-
-        /* Хедер */
+        /* Шапка */
         header {
-            position: sticky; top: 0; z-index: 1000;
-            background: rgba(2, 3, 7, 0.88); backdrop-filter: blur(40px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 3rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+            position: sticky; top: 0; z-index: 100;
+            background: var(--bg-header); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
         }
 
-        .brand-block { display: flex; align-items: center; gap: 0.8rem; }
-        .logo-glitch {
-            font-family: 'Unbounded', sans-serif; font-size: 1.4rem; font-weight: 800;
-            letter-spacing: -0.5px; text-transform: uppercase;
-            background: linear-gradient(135deg, #fff 20%, #94a3b8 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            position: relative; transition: all 0.3s;
-        }
-        .logo-glitch:hover { text-shadow: 2px 2px var(--neon-red), -2px -2px var(--neon-cyan); }
+        .brand-block { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none; }
+        .logo { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .hud-status-tag {
-            font-family: 'Unbounded', sans-serif;
-            background: rgba(0, 240, 255, 0.1); border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan); font-size: 0.6rem; font-weight: 800;
-            padding: 0.25rem 0.6rem; border-radius: 6px; letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); animation: blink 2s infinite;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .nav-controls { display: flex; align-items: center; gap: 0.75rem; flex: 1; max-width: 950px; justify-content: flex-end; }
 
-        .nav-controls { display: flex; align-items: center; gap: 0.8rem; flex: 1; max-width: 1050px; justify-content: flex-end; }
-
-        .search-container { position: relative; flex: 1; max-width: 340px; }
+        .search-wrapper { position: relative; flex: 1; max-width: 320px; }
         .cyber-input {
-            width: 100%; background: var(--glass-bg); border: 1px solid var(--glass-border);
-            color: var(--text-main); padding: 0.75rem 2.6rem 0.75rem 1.1rem; border-radius: 14px;
-            font-size: 0.88rem; font-weight: 500; outline: none; transition: all 0.3s; backdrop-filter: blur(15px);
+            width: 100%; background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--text-main); padding: 0.65rem 2.2rem 0.65rem 1rem; border-radius: var(--radius-md);
+            font-size: 0.88rem; font-family: inherit; outline: none; transition: all 0.2s;
         }
-        .cyber-input:focus {
-            border-color: var(--neon-cyan); box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
-            background: rgba(10, 15, 28, 0.95);
-        }
+        .cyber-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        
         .hotkey-badge {
             position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-            color: var(--text-dim); font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 6px;
+            background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+            color: var(--text-muted); font-size: 0.7rem; font-weight: 600; padding: 0.1rem 0.4rem; border-radius: 4px; pointer-events: none;
         }
 
         .cyber-select {
-            font-family: 'Inter', sans-serif;
-            background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main);
-            padding: 0.75rem 1rem; border-radius: 14px; font-size: 0.85rem; font-weight: 600; outline: none; transition: border-color 0.3s;
+            background: var(--bg-card); border: 1px solid var(--border);
+            color: var(--text-main); padding: 0.65rem 1rem; border-radius: var(--radius-md);
+            font-size: 0.88rem; font-family: inherit; outline: none; transition: all 0.2s; cursor: pointer;
         }
-        .cyber-select:focus { border-color: var(--neon-cyan); }
-        .cyber-select option { background: #080c14; color: #fff; }
+        .cyber-select:focus { border-color: var(--primary); }
 
-        /* Кнопки в стиле Unbounded */
         .btn-x {
-            font-family: 'Unbounded', sans-serif;
-            background: linear-gradient(135deg, var(--neon-red), var(--neon-orange));
-            color: #fff; border: none; padding: 0.75rem 1.2rem; border-radius: 14px;
-            font-weight: 700; font-size: 0.72rem; letter-spacing: 0.2px; text-transform: uppercase;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-            box-shadow: 0 4px 25px rgba(255, 0, 85, 0.4);
+            background: var(--primary); color: #fff; border: none; padding: 0.65rem 1.25rem;
+            border-radius: var(--radius-md); font-weight: 600; font-size: 0.88rem; cursor: pointer;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap;
         }
-        .btn-x:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 35px rgba(255, 0, 85, 0.7); }
+        .btn-x:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-        .btn-ghost { background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: none; color: var(--text-main); }
-        .btn-ghost:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
-        .btn-ghost.active { background: linear-gradient(135deg, var(--neon-purple), #6d28d9); border-color: transparent; box-shadow: 0 4px 20px rgba(157, 0, 255, 0.5); }
+        .btn-ghost { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); }
+        .btn-ghost:hover { background: var(--bg-card-hover); border-color: rgba(255,255,255,0.2); }
+        .btn-ghost.active { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #f87171; }
 
-        .btn-cyan { background: linear-gradient(135deg, var(--neon-cyan), #00a8ff); color: #000; font-weight: 800; box-shadow: 0 4px 25px rgba(0, 240, 255, 0.4); }
-        .btn-cyan:hover { box-shadow: 0 8px 35px rgba(0, 240, 255, 0.8); }
+        /* Переключатель вида (Сетка / Список) */
+        .view-toggle { display: flex; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 2px; }
+        .view-btn { background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 0.7rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .view-btn.active { background: var(--primary); color: #fff; }
 
-        .sound-btn {
-            background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-dim);
-            padding: 0.75rem; border-radius: 14px; font-size: 1rem; transition: all 0.3s;
-        }
-        .sound-btn.active { color: var(--neon-cyan); border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
-
-        /* Чипсы фильтрации */
-        .chips-container {
-            display: flex; gap: 0.6rem; overflow-x: auto; padding: 1.2rem 3rem 0 3rem;
-            max-width: 1600px; margin: 0 auto; position: relative; z-index: 1;
-        }
-        .chip {
-            font-family: 'Unbounded', sans-serif;
-            font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2px;
-            background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-dim);
-            padding: 0.65rem 1.2rem; border-radius: 30px; transition: all 0.25s;
-            white-space: nowrap; backdrop-filter: blur(10px);
-        }
-        .chip:hover, .chip.active {
-            background: rgba(0, 240, 255, 0.12); border-color: var(--neon-cyan); color: #fff;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
-        }
-
-        /* Баннер главного фильма */
-        .hero-wrapper { max-width: 1600px; margin: 1.5rem auto 0 auto; padding: 0 3rem; position: relative; z-index: 1; }
+        /* Hero Баннер */
+        .hero-container { max-width: 1400px; margin: 1.5rem auto 0; padding: 0 2.5rem; }
         .hero-banner {
-            position: relative; border-radius: 32px; overflow: hidden; height: 350px;
-            border: 1px solid var(--glass-border); display: flex; align-items: center; padding: 3.5rem;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.95);
-            background: linear-gradient(90deg, rgba(2,3,7,0.98) 40%, rgba(2,3,7,0.3) 75%, transparent 100%),
+            position: relative; border-radius: var(--radius-lg); overflow: hidden; height: 320px;
+            border: 1px solid var(--border); display: flex; align-items: center; padding: 2.5rem;
+            background: linear-gradient(90deg, #0b0f17 35%, rgba(11, 15, 23, 0.4) 70%, transparent 100%),
                         url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=1600&auto=format&fit=crop') center/cover;
         }
+        .hero-content { max-width: 550px; z-index: 2; }
+        .hero-tag { display: inline-block; background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .hero-title { font-size: 2.2rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.6rem; }
+        .hero-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        .hero-content { max-width: 620px; z-index: 2; }
-        .hero-badge {
-            font-family: 'Unbounded', sans-serif;
-            display: inline-flex; align-items: center; gap: 0.5rem; color: var(--neon-green);
-            font-weight: 700; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;
-            margin-bottom: 0.8rem; background: rgba(0, 255, 136, 0.1); padding: 0.35rem 0.85rem;
-            border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.3);
+        /* Фильтры-чипсы */
+        .chips-container {
+            display: flex; gap: 0.6rem; overflow-x: auto; padding: 1.5rem 2.5rem 0;
+            max-width: 1400px; margin: 0 auto; align-items: center;
         }
-        .hero-title { font-family: 'Unbounded', sans-serif; font-size: 2.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 0.8rem; letter-spacing: -1px; }
-        .hero-desc { color: var(--text-dim); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.6rem; }
-
-        /* Сетка каталога */
-        main { position: relative; z-index: 1; max-width: 1600px; margin: 0 auto; padding: 2.5rem 3rem 4rem 3rem; }
-
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .section-title { font-family: 'Unbounded', sans-serif; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.8rem; letter-spacing: -0.5px; }
-        .section-title::before {
-            content: ''; display: block; width: 6px; height: 26px;
-            background: linear-gradient(180deg, var(--neon-red), var(--neon-purple));
-            border-radius: 4px; box-shadow: 0 0 15px var(--neon-red);
+        .chip {
+            font-size: 0.85rem; font-weight: 500;
+            background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);
+            padding: 0.5rem 1.1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
         }
+        .chip:hover, .chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .reset-link { font-size: 0.8rem; color: #ef4444; margin-left: auto; cursor: pointer; display: none; text-decoration: underline; }
 
-        .counter-pill {
-            font-family: 'Unbounded', sans-serif; font-size: 0.7rem; font-weight: 700;
-            background: var(--glass-bg); border: 1px solid var(--glass-border);
-            color: var(--text-dim); padding: 0.4rem 1rem; border-radius: 20px;
-        }
+        /* Основной контент */
+        main { max-width: 1400px; margin: 0 auto; padding: 1.75rem 2.5rem; }
 
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .section-title { font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; }
+        .counter-pill { font-size: 0.82rem; color: var(--text-muted); background: var(--bg-card); padding: 0.3rem 0.8rem; border-radius: 20px; border: 1px solid var(--border); }
+
+        /* Сетка фильмов */
         .movies-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 2.2rem; perspective: 1000px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem; transition: all 0.3s;
         }
 
-        .card-conic-wrapper {
-            position: relative; border-radius: 26px; padding: 1px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-            transition: all 0.3s ease; transform-style: preserve-3d;
-        }
-        .card-conic-wrapper:hover {
-            background: conic-gradient(from 0deg, var(--neon-cyan), var(--neon-purple), var(--neon-red), var(--neon-cyan));
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(0, 240, 255, 0.3);
-        }
+        /* Вид списком */
+        .movies-grid.list-view { display: flex; flex-direction: column; gap: 1rem; }
+        .movies-grid.list-view .movie-card { flex-direction: row; height: 140px; }
+        .movies-grid.list-view .poster-container { width: 100px; height: 100%; aspect-ratio: auto; }
+        .movies-grid.list-view .meta-container { padding: 0.5rem 1rem; flex: 1; }
 
+        /* Карточка */
         .movie-card {
-            background: rgba(8, 12, 22, 0.9); border-radius: 25px; padding: 0.7rem;
-            display: flex; flex-direction: column; height: 100%; backdrop-filter: blur(20px);
-            transition: transform 0.15s ease-out; transform-style: preserve-3d; overflow: hidden;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 0.6rem; display: flex; flex-direction: column; cursor: pointer;
+            transition: all 0.25s ease; position: relative; overflow: hidden;
         }
+        .movie-card:hover { transform: translateY(-5px); border-color: var(--border-hover); box-shadow: 0 12px 24px rgba(0,0,0,0.4); }
 
-        .poster-container {
-            position: relative; width: 100%; aspect-ratio: 2 / 3;
-            border-radius: 18px; overflow: hidden; background: #050810; transform: translateZ(25px);
-        }
+        .poster-container { position: relative; width: 100%; aspect-ratio: 2 / 3; border-radius: var(--radius-md); overflow: hidden; background: #000; }
+        .poster-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .movie-card:hover .poster-img { transform: scale(1.05); }
 
-        .poster-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); }
-        .card-conic-wrapper:hover .poster-img { transform: scale(1.08); }
+        .quality-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; backdrop-filter: blur(4px); }
 
         .rating-badge {
-            position: absolute; top: 10px; left: 10px; z-index: 3;
-            padding: 0.3rem 0.65rem; border-radius: 8px; font-weight: 800; font-size: 0.78rem;
-            color: #fff; backdrop-filter: blur(12px); box-shadow: 0 4px 15px rgba(0,0,0,0.6); transform: translateZ(35px);
+            position: absolute; top: 8px; left: 8px; z-index: 2;
+            padding: 0.25rem 0.55rem; border-radius: 6px; font-weight: 700; font-size: 0.78rem;
+            color: #fff; background: rgba(11, 15, 23, 0.85); backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.25rem;
         }
-        .rate-high { background: rgba(0, 255, 136, 0.85); border: 1px solid rgba(0, 255, 136, 0.5); }
-        .rate-med { background: rgba(255, 85, 0, 0.85); border: 1px solid rgba(255, 85, 0, 0.5); }
+        .rating-star { color: var(--accent-gold); }
 
         .fav-button {
-            position: absolute; top: 10px; right: 10px; z-index: 3;
-            background: rgba(2, 3, 7, 0.75); border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 50%; width: 36px; height: 36px; color: #fff; font-size: 1rem;
-            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);
-            transition: all 0.25s; transform: translateZ(35px);
+            position: absolute; top: 8px; right: 8px; z-index: 2;
+            background: rgba(11, 15, 23, 0.85); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%; width: 34px; height: 34px; color: #fff; font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(6px);
         }
-        .fav-button:hover { transform: translateZ(35px) scale(1.2); background: rgba(2, 3, 7, 0.95); }
-        .fav-button.active { color: var(--neon-purple); border-color: var(--neon-purple); text-shadow: 0 0 12px var(--neon-purple); }
+        .fav-button:hover { transform: scale(1.1); background: #151c28; }
+        .fav-button.active { color: #ef4444; border-color: rgba(239, 68, 68, 0.4); }
 
-        .meta-container { padding: 0.8rem 0.3rem 0.3rem 0.3rem; transform: translateZ(15px); }
-        .movie-title { font-size: 0.98rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.2rem; }
-        .movie-sub { font-size: 0.8rem; color: var(--text-dim); font-weight: 500; }
+        .meta-container { padding: 0.75rem 0.3rem 0.3rem; }
+        .movie-title { font-size: 0.98rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.25rem; }
+        .movie-sub { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
 
         /* Модальное окно */
         .modal-overlay {
-            position: fixed; inset: 0; z-index: 2000; background: rgba(2, 3, 7, 0.88);
-            backdrop-filter: blur(25px); display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.35s ease; padding: 1.5rem;
+            position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease; padding: 1rem;
         }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
 
         .modal-box {
-            background: rgba(10, 15, 28, 0.96);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 30px; max-width: 860px; width: 100%; overflow: hidden;
-            box-shadow: 0 35px 100px rgba(0,0,0,0.95), 0 0 50px rgba(0, 240, 255, 0.25);
-            position: relative; transform: scale(0.92) translateY(20px); transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; max-width: 720px; width: 100%; overflow: hidden; position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); transform: scale(0.95); transition: transform 0.25s ease;
         }
-        .modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
+        .modal-overlay.active .modal-box { transform: scale(1); }
 
-        .modal-body-layout { padding: 2.8rem; display: flex; gap: 2.5rem; align-items: stretch; }
-        
-        .modal-poster-wrap {
-            width: 280px; min-width: 280px; aspect-ratio: 2/3; border-radius: 22px;
-            overflow: hidden; background: #050810; position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);
-        }
-        .modal-poster { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-        .modal-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .modal-body-layout { padding: 2rem; display: flex; gap: 1.75rem; }
+        .modal-poster-wrap { width: 220px; min-width: 220px; aspect-ratio: 2/3; border-radius: var(--radius-md); overflow: hidden; background: #000; }
+        .modal-poster { width: 100%; height: 100%; object-fit: cover; }
+        .modal-info { flex: 1; display: flex; flex-direction: column; }
 
         .modal-close {
-            position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.15); color: #fff; width: 40px; height: 40px;
-            border-radius: 50%; font-size: 1.3rem; display: flex; align-items: center; justify-content: center;
-            transition: all 0.25s; z-index: 10;
+            position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border); color: var(--text-muted); width: 36px; height: 36px;
+            border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
         }
-        .modal-close:hover { color: #fff; transform: rotate(90deg) scale(1.1); background: var(--neon-red); border-color: var(--neon-red); }
+        .modal-close:hover { color: #fff; background: rgba(255,255,255,0.15); }
 
-        .badge-tag {
-            font-family: 'Unbounded', sans-serif;
-            background: linear-gradient(135deg, rgba(157, 0, 255, 0.2), rgba(0, 240, 255, 0.2));
-            border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
-            font-size: 0.6rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 6px;
-            letter-spacing: 1px; display: inline-block;
-        }
-
-        #toastArea { position: fixed; bottom: 25px; right: 25px; z-index: 3000; display: flex; flex-direction: column; gap: 0.6rem; }
+        #toastArea { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 0.5rem; }
         .toast-item {
-            background: rgba(10, 15, 28, 0.95); border: 1px solid var(--neon-cyan);
-            color: #fff; padding: 0.85rem 1.5rem; border-radius: 16px; font-weight: 600; font-size: 0.88rem;
-            backdrop-filter: blur(20px); box-shadow: 0 15px 35px rgba(0,0,0,0.9), 0 0 25px rgba(0, 240, 255, 0.3);
-            animation: tIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), tOut 0.3s forwards 2.7s;
+            background: var(--bg-card); border: 1px solid var(--primary);
+            color: #fff; padding: 0.75rem 1.25rem; border-radius: 10px; font-size: 0.88rem; font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); animation: fadeIn 0.2s, fadeOut 0.2s 2.8s forwards;
         }
-        @keyframes tIn { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes tOut { from { opacity: 1; } to { opacity: 0; transform: translateY(20px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
 
-        .empty-notice { grid-column: 1 / -1; text-align: center; padding: 6rem; color: var(--text-dim); font-size: 1.15rem; }
+        .empty-notice { grid-column: 1 / -1; text-align: center; padding: 5rem 1rem; color: var(--text-muted); font-size: 1rem; }
 
-        @media (max-width: 900px) {
-            header, main, .hero-wrapper, .chips-container { padding-left: 1.5rem; padding-right: 1.5rem; }
-            .modal-body-layout { flex-direction: column; padding: 2rem; gap: 1.5rem; }
-            .modal-poster-wrap { width: 100%; max-height: 320px; }
-            .hero-banner { height: auto; padding: 2rem; }
-            .hero-title { font-size: 2rem; }
-            * { cursor: auto !important; }
-            #customCursor, #cursorFollower { display: none; }
+        @media (max-width: 850px) {
+            header, main, .chips-container, .hero-container { padding-left: 1.25rem; padding-right: 1.25rem; }
+            .hero-banner { height: auto; padding: 1.75rem; }
+            .hero-title { font-size: 1.6rem; }
+            .modal-body-layout { flex-direction: column; }
+            .modal-poster-wrap { width: 100%; max-height: 280px; }
+            .search-wrapper { max-width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <div id="customCursor"></div>
-    <div id="cursorFollower"></div>
-    <div class="scanline-overlay"></div>
-
-    <canvas id="hyperCanvas"></canvas>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-
     <div id="toastArea"></div>
 
+    <!-- Шапка -->
     <header>
-       <div class="brand-block">
-    <div class="logo-glitch" onclick="resetCatalog()">
-        КиноКаталог <span class="logo-plus"></span>
-    </div>
-    <div class="hud-status-tag">Plus</div>
-</div>
+        <div class="brand-block" onclick="resetCatalog()">
+            <div class="logo">🎬 КиноКаталог</div>
+        </div>
 
         <div class="nav-controls">
-            <div class="search-container">
+            <div class="search-wrapper">
                 <input type="text" id="searchInput" class="cyber-input" placeholder="Поиск фильма...">
                 <span class="hotkey-badge">/</span>
             </div>
@@ -359,35 +245,21 @@
                 <option value="title">По алфавиту</option>
             </select>
 
-            <button class="btn-x btn-ghost" id="favFilterBtn" onclick="toggleFavOnly()">
-                ♥ Избранное
-            </button>
+            <button class="btn-x btn-ghost" id="favFilterBtn" onclick="toggleFavOnly()">♥ Избранное</button>
 
-            <button class="btn-x btn-cyan" onclick="triggerRoulette()">
-                🎰 Рулетка <span style="font-size:0.65rem; opacity:0.7;">[R]</span>
-            </button>
-
-            <button class="sound-btn active" id="soundToggleBtn" onclick="toggleSoundToggle()">
-                🔊
-            </button>
+            <!-- Переключатель Вида -->
+            <div class="view-toggle">
+                <button class="view-btn active" id="gridViewBtn" onclick="setViewMode('grid')" title="Сетка">⊞</button>
+                <button class="view-btn" id="listViewBtn" onclick="setViewMode('list')" title="Список">☰</button>
+            </div>
         </div>
     </header>
 
-    <!-- Категории (Чипсы) -->
-    <div class="chips-container">
-        <div class="chip active" onclick="selectChip('', this)">Все коллекции</div>
-        <div class="chip" onclick="selectChip('Фантастика', this)">🚀 Фантастика</div>
-        <div class="chip" onclick="selectChip('Драма', this)">🎭 Драма</div>
-        <div class="chip" onclick="selectChip('Боевик', this)">💥 Боевик</div>
-        <div class="chip" onclick="selectChip('Криминал', this)">🕵️ Криминал</div>
-        <div class="chip" onclick="selectChip('Фэнтези', this)">🪄 Фэнтези</div>
-    </div>
-
-    <!-- Главный баннер -->
-    <div class="hero-wrapper">
+    <!-- Главный баннер рекомендуемого фильма -->
+    <div class="hero-container">
         <div class="hero-banner" id="heroBanner">
             <div class="hero-content">
-                <span class="hero-badge">★ TOP RECOMMENDATION 2026</span>
+                <span class="hero-tag">🔥 Тренды недели</span>
                 <h1 class="hero-title" id="heroTitle">Интерстеллар</h1>
                 <p class="hero-desc" id="heroDesc">Наше время на Земле подошло к концу. Команда исследователей берет на себя самую важную миссию в истории человечества.</p>
                 <button class="btn-x" onclick="playHeroMovie()">▶ Смотреть сейчас</button>
@@ -395,6 +267,18 @@
         </div>
     </div>
 
+    <!-- Чипсы жанров -->
+    <div class="chips-container">
+        <div class="chip active" onclick="selectChip('', this)">Все жанры</div>
+        <div class="chip" onclick="selectChip('Фантастика', this)">🚀 Фантастика</div>
+        <div class="chip" onclick="selectChip('Драма', this)">🎭 Драма</div>
+        <div class="chip" onclick="selectChip('Боевик', this)">💥 Боевик</div>
+        <div class="chip" onclick="selectChip('Криминал', this)">🕵️ Криминал</div>
+        <div class="chip" onclick="selectChip('Фэнтези', this)">🪄 Фэнтези</div>
+        <span class="reset-link" id="resetFiltersBtn" onclick="resetCatalog()">Сбросить фильтры</span>
+    </div>
+
+    <!-- Каталог -->
     <main>
         <div class="section-header">
             <h2 class="section-title" id="pageTitle">Все фильмы</h2>
@@ -416,108 +300,16 @@
         let allMovies = [];
         let favs = JSON.parse(localStorage.getItem('hyper_favs') || '[]');
         let showOnlyFavs = false;
-        let isSoundOn = true;
+        let activeHeroMovieId = null;
 
-        /* Генератор безопасных SVG постеров без сломанных символов */
         function getPosterFallback(title) {
             const cleanTitle = (title || 'КИНО').substring(0, 20);
             const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600">
-                <defs>
-                    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#0a0f1d"/>
-                        <stop offset="50%" stop-color="#1e1b4b"/>
-                        <stop offset="100%" stop-color="#020617"/>
-                    </linearGradient>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#g)"/>
-                <circle cx="200" cy="240" r="110" fill="#00f0ff" opacity="0.08"/>
-                <text x="50%" y="42%" dominant-baseline="middle" text-anchor="middle" fill="#00f0ff" font-family="sans-serif" font-size="75" opacity="0.4">🎬</text>
-                <text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-size="22" font-weight="bold">${cleanTitle}</text>
+                <rect width="100%" height="100%" fill="#151c28"/>
+                <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="20" font-weight="bold">${cleanTitle}</text>
             </svg>`;
             return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
         }
-
-        /* Лазерный курсор */
-        const dot = document.getElementById('customCursor');
-        const ring = document.getElementById('cursorFollower');
-
-        window.addEventListener('mousemove', (e) => {
-            dot.style.left = `${e.clientX}px`; dot.style.top = `${e.clientY}px`;
-            ring.style.left = `${e.clientX}px`; ring.style.top = `${e.clientY}px`;
-        });
-
-        /* Web Audio API - звуки интерфейса */
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playFx(freq, type = 'sine', duration = 0.08) {
-            if (!isSoundOn) return;
-            try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch (e) {}
-        }
-
-        function toggleSoundToggle() {
-            isSoundOn = !isSoundOn;
-            const btn = document.getElementById('soundToggleBtn');
-            btn.classList.toggle('active', isSoundOn);
-            btn.innerText = isSoundOn ? '🔊' : '🔇';
-            if (isSoundOn) playFx(700, 'sine', 0.1);
-        }
-
-        /* Анимированные интерактивные частицы на фоне */
-        const canvas = document.getElementById('hyperCanvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            particles = [];
-            for (let i = 0; i < 60; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5,
-                    radius: Math.random() * 2 + 0.5
-                });
-            }
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        function drawParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(0, 240, 255, 0.35)';
-                ctx.fill();
-
-                for (let j = i + 1; j < particles.length; j++) {
-                    let p2 = particles[j];
-                    let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                    if (dist < 120) {
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y);
-                        ctx.strokeStyle = `rgba(0, 240, 255, ${0.22 - dist / 480})`;
-                        ctx.stroke();
-                    }
-                }
-            });
-            requestAnimationFrame(drawParticles);
-        }
-        drawParticles();
 
         function showToast(text) {
             const area = document.getElementById('toastArea');
@@ -533,34 +325,39 @@
                 const res = await fetch(API_URL);
                 if (!res.ok) throw new Error();
                 allMovies = await res.json();
-                if (allMovies.length > 0) updateHeroBanner(allMovies[0]);
+                
+                if (allMovies.length > 0) {
+                    updateHeroBanner(allMovies[0]);
+                }
                 applyFiltersAndRender();
             } catch (err) {
                 document.getElementById('moviesGrid').innerHTML = 
-                    `<div class="empty-notice">⚠️ Не удалось подключиться к серверу FastAPI (127.0.0.1:8000).</div>`;
+                    `<div class="empty-notice">⚠️ Не удалось подключиться к API (127.0.0.1:8000).</div>`;
                 document.getElementById('movieCounter').innerText = 'Ошибка';
             }
         }
 
         function updateHeroBanner(movie) {
-            if (!movie) return;
+            activeHeroMovieId = movie.id;
             document.getElementById('heroTitle').innerText = movie.title;
-            document.getElementById('heroDesc').innerText = movie.description || 'Смотрите фильм прямо сейчас в Ultra HD качестве.';
-            const fallback = getPosterFallback(movie.title);
+            document.getElementById('heroDesc').innerText = movie.description || 'Смотрите фильм прямо сейчас в высоком качестве.';
+            const safeFallback = getPosterFallback(movie.title);
             document.getElementById('heroBanner').style.backgroundImage = 
-                `linear-gradient(90deg, rgba(2,3,7,0.98) 40%, rgba(2,3,7,0.3) 75%, transparent 100%), url('${movie.poster_url || fallback}')`;
-            document.getElementById('heroBanner').setAttribute('data-id', movie.id);
+                `linear-gradient(90deg, #0b0f17 35%, rgba(11, 15, 23, 0.4) 70%, transparent 100%), url('${movie.poster_url || safeFallback}')`;
         }
 
         function playHeroMovie() {
-            const id = document.getElementById('heroBanner').getAttribute('data-id');
-            if (id) openModal(parseInt(id));
+            if (activeHeroMovieId) openModal(activeHeroMovieId);
         }
 
         function applyFiltersAndRender() {
             const search = document.getElementById('searchInput').value.toLowerCase().trim();
             const genre = document.getElementById('genreSelect').value;
             const sort = document.getElementById('sortSelect').value;
+
+            // Показываем кнопку сброса, если задействованы фильтры
+            const isFiltered = search || genre || showOnlyFavs;
+            document.getElementById('resetFiltersBtn').style.display = isFiltered ? 'inline-block' : 'none';
 
             let filtered = allMovies.filter(m => {
                 const matchSearch = m.title.toLowerCase().includes(search);
@@ -582,7 +379,7 @@
         function renderCards(movies) {
             const grid = document.getElementById('moviesGrid');
             if (movies.length === 0) {
-                grid.innerHTML = `<div class="empty-notice">Ничего не найдено 🔍</div>`;
+                grid.innerHTML = `<div class="empty-notice">Фильмы не найдены 🔍</div>`;
                 return;
             }
 
@@ -591,62 +388,43 @@
                 const safeFallback = getPosterFallback(m.title);
 
                 return `
-                    <div class="card-conic-wrapper"
-                         onmousemove="handleTilt(event, this)"
-                         onmouseleave="resetTilt(this)"
-                         onclick="openModal(${m.id})">
-                        <div class="movie-card">
-                            <div class="poster-container">
-                                <button class="fav-button ${isFav ? 'active' : ''}" onclick="toggleFav(event, ${m.id})">
-                                    ${isFav ? '♥' : '♡'}
-                                </button>
-                                <div class="rating-badge ${m.rating >= 7.8 ? 'rate-high' : 'rate-med'}">
-                                    ★ ${m.rating ? m.rating.toFixed(1) : '—'}
-                                </div>
-                                <img src="${m.poster_url || safeFallback}" 
-                                     class="poster-img" 
-                                     alt="${m.title}" 
-                                     onerror="this.onerror=null; this.src='${safeFallback}';">
+                    <div class="movie-card" onclick="openModal(${m.id})">
+                        <div class="poster-container">
+                            <button class="fav-button ${isFav ? 'active' : ''}" onclick="toggleFav(event, ${m.id})">
+                                ${isFav ? '♥' : '♡'}
+                            </button>
+                            <div class="rating-badge">
+                                <span class="rating-star">★</span> ${m.rating ? m.rating.toFixed(1) : '—'}
                             </div>
-                            <div class="meta-container">
-                                <div class="movie-title">${m.title}</div>
-                                <div class="movie-sub">${m.year || '—'} • ${m.genre || 'Кино'}</div>
-                            </div>
+                            <span class="quality-badge">4K</span>
+                            <img src="${m.poster_url || safeFallback}" 
+                                 class="poster-img" 
+                                 alt="${m.title}" 
+                                 onerror="this.onerror=null; this.src='${safeFallback}';">
+                        </div>
+                        <div class="meta-container">
+                            <div class="movie-title">${m.title}</div>
+                            <div class="movie-sub">${m.year || '—'} • ${m.genre || 'Кино'}</div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function handleTilt(e, card) {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const rx = ((y - rect.height / 2) / (rect.height / 2)) * -12;
-            const ry = ((x - rect.width / 2) / (rect.width / 2)) * 12;
-            card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.03, 1.03, 1.03)`;
-        }
-
-        function resetTilt(card) {
-            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-        }
-
         function toggleFav(e, id) {
             e.stopPropagation();
-            playFx(650, 'sine', 0.12);
             if (favs.includes(id)) {
                 favs = favs.filter(i => i !== id);
                 showToast('Удалено из избранного');
             } else {
                 favs.push(id);
-                showToast('Добавлено в избранное ♥');
+                showToast('Добавлено в избранное');
             }
             localStorage.setItem('hyper_favs', JSON.stringify(favs));
             applyFiltersAndRender();
         }
 
         function toggleFavOnly() {
-            playFx(450, 'triangle', 0.1);
             showOnlyFavs = !showOnlyFavs;
             document.getElementById('favFilterBtn').classList.toggle('active', showOnlyFavs);
             document.getElementById('pageTitle').innerText = showOnlyFavs ? 'Избранные фильмы' : 'Все фильмы';
@@ -654,32 +432,29 @@
         }
 
         function selectChip(genre, el) {
-            playFx(380, 'sine', 0.08);
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
             document.getElementById('genreSelect').value = genre;
             applyFiltersAndRender();
         }
 
-        function triggerRoulette() {
-            if (allMovies.length === 0) return;
-            let counter = 0;
-            const timer = setInterval(() => {
-                playFx(320 + counter * 35, 'sawtooth', 0.04);
-                const randomMovie = allMovies[Math.floor(Math.random() * allMovies.length)];
-                document.getElementById('searchInput').value = randomMovie.title;
-                applyFiltersAndRender();
-                counter++;
-                if (counter > 12) {
-                    clearInterval(timer);
-                    playFx(900, 'sine', 0.25);
-                    openModal(randomMovie.id);
-                }
-            }, 75);
+        function setViewMode(mode) {
+            const grid = document.getElementById('moviesGrid');
+            const gridBtn = document.getElementById('gridViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+
+            if (mode === 'list') {
+                grid.classList.add('list-view');
+                listBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            } else {
+                grid.classList.remove('list-view');
+                gridBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            }
         }
 
         function openModal(id) {
-            playFx(550, 'sine', 0.15);
             const movie = allMovies.find(m => m.id === id);
             if (!movie) return;
 
@@ -693,23 +468,17 @@
                          onerror="this.onerror=null; this.src='${safeFallback}';">
                 </div>
                 <div class="modal-info">
-                    <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom: 0.8rem; flex-wrap: wrap;">
-                        <span class="badge-tag">4K ULTRA HD</span>
-                        <span class="badge-tag" style="border-color:var(--neon-green); color:var(--neon-green);">IMAX ENHANCED</span>
-                        <span style="color:var(--text-dim); font-size:0.85rem; font-weight:600; margin-left:auto;">${movie.year || '—'} • ${movie.genre || 'Кино'}</span>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.4rem; font-weight: 500;">
+                        ${movie.year || '—'} • ${movie.genre || 'Кино'}
                     </div>
-                    
-                    <h2 style="font-family:'Unbounded',sans-serif; font-size:2rem; font-weight:800; margin-bottom:0.6rem; line-height:1.1; letter-spacing:-0.5px;">${movie.title}</h2>
-                    
-                    <div style="font-size:1.2rem; font-weight:800; color:var(--neon-green); margin-bottom:1.2rem; display:flex; align-items:center; gap:0.4rem;">
-                        ★ <span>${movie.rating ? movie.rating.toFixed(1) : '—'}</span> <span style="font-size:0.85rem; color:var(--text-dim); font-weight:500;">/ 10</span>
+                    <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.6rem; line-height: 1.2;">${movie.title}</h2>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.3rem;">
+                        ★ <span>${movie.rating ? movie.rating.toFixed(1) : '—'}</span> <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">/ 10</span>
                     </div>
-
-                    <p style="line-height:1.65; color:rgba(248,250,252,0.85); font-size:0.92rem; margin-bottom:2rem; overflow-y:auto; max-height:160px; padding-right:0.5rem;">
-                        ${movie.description || 'Описание этого фильма пока не добавлено в базу данных.'}
+                    <p style="line-height: 1.6; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.75rem;">
+                        ${movie.description || 'Описание фильма пока не написано.'}
                     </p>
-
-                    <button class="btn-x" style="width:100%; padding:1rem; font-size:0.8rem;" onclick="showToast('Запуск видеопотока 4K...')">
+                    <button class="btn-x" style="width: 100%; justify-content: center; padding: 0.8rem;" onclick="showToast('Запуск видеоплеера...')">
                         ▶ Смотреть Фильм
                     </button>
                 </div>
@@ -718,13 +487,9 @@
         }
 
         function closeModalOnBackdrop(e) { if (e.target.id === 'modalOverlay') closeModalDirect(); }
-        function closeModalDirect() {
-            playFx(280, 'sine', 0.08);
-            document.getElementById('modalOverlay').classList.remove('active');
-        }
+        function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('active'); }
 
         function resetCatalog() {
-            playFx(400, 'sine', 0.1);
             document.getElementById('searchInput').value = '';
             document.getElementById('genreSelect').value = '';
             showOnlyFavs = false;
@@ -735,12 +500,11 @@
             applyFiltersAndRender();
         }
 
-        /* Горячие клавиши */
+        // Горячая клавиша / для поиска
         document.addEventListener('keydown', (e) => {
             if (e.key === '/' && document.activeElement !== document.getElementById('searchInput')) {
-                e.preventDefault(); document.getElementById('searchInput').focus();
-            } else if ((e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К') && document.activeElement !== document.getElementById('searchInput')) {
-                e.preventDefault(); triggerRoulette();
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
             } else if (e.key === 'Escape') {
                 closeModalDirect();
             }
